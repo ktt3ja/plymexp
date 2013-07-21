@@ -4,21 +4,22 @@ from decimal import Decimal
 
 tokens = (
     'NAME','NUMBER',
-    'PLUS','MINUS','TIMES','DIVIDE','EQUALS', 'SET_TO',
+    'PLUS','MINUS','TIMES','DIVIDE','RAISE_TO','EQUALS', 'SET_TO',
     'LPAREN','RPAREN',
     )
 
 # Tokens
 
-t_PLUS    = r'\+'
-t_MINUS   = r'-'
-t_TIMES   = r'\*'
-t_DIVIDE  = r'/'
-t_EQUALS  = r'='
-t_SET_TO  = r'->'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
-t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
+t_PLUS     = r'\+'
+t_MINUS    = r'-'
+t_TIMES    = r'\*'
+t_DIVIDE   = r'/'
+t_RAISE_TO = r'\^'
+t_EQUALS   = r'='
+t_SET_TO   = r'->'
+t_LPAREN   = r'\('
+t_RPAREN   = r'\)'
+t_NAME     = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 def t_NUMBER(t):
     r'\d+(\.\d+)?'
@@ -45,6 +46,7 @@ precedence = (
     ('left','PLUS','MINUS'),
     ('left','TIMES','DIVIDE'),
     ('right','UMINUS'),
+    ('right','RAISE_TO'),
     )
 
 
@@ -82,6 +84,10 @@ def p_expression_binop(t):
 def p_expression_uminus(t):
     'expression : MINUS expression %prec UMINUS'
     t[0] = -t[2]
+
+def p_expression_exponent(t):
+    'expression : expression RAISE_TO expression'
+    t[0] = t[1] ** t[3]
 
 def p_expression_group(t):
     'expression : LPAREN expression RPAREN'
