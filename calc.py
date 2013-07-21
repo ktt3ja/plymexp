@@ -4,7 +4,7 @@ from decimal import Decimal
 
 tokens = (
     'NAME','NUMBER',
-    'PLUS','MINUS','TIMES','DIVIDE','EQUALS',
+    'PLUS','MINUS','TIMES','DIVIDE','EQUALS', 'SET_TO',
     'LPAREN','RPAREN',
     )
 
@@ -15,6 +15,7 @@ t_MINUS   = r'-'
 t_TIMES   = r'\*'
 t_DIVIDE  = r'/'
 t_EQUALS  = r'='
+t_SET_TO  = r'->'
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
@@ -48,13 +49,24 @@ precedence = (
 
 
 names = { }
-
+reserved_names = ['_last']
 def p_statement_assign(t):
     'statement : NAME EQUALS expression'
-    names[t[1]] = t[3]
+    if t[1] in reserved_names:
+        print "Name %s reserved" % t[1]
+    else: 
+        names[t[1]] = t[3]
+
+def p_set_last_to(t):
+    'statement : SET_TO NAME'
+    if t[2] in reserved_names:
+        print "Name %s reserved" % t[2]
+    else:
+        names[t[2]] = names['_last'] 
 
 def p_statement_expr(t):
     'statement : expression'
+    names['_last'] = t[1]
     print(t[1])
 
 def p_expression_binop(t):
