@@ -1,3 +1,7 @@
+import ply.lex as lex
+import ply.yacc as yacc
+from decimal import Decimal
+
 tokens = (
     'NAME','NUMBER',
     'PLUS','MINUS','TIMES','DIVIDE','EQUALS',
@@ -16,12 +20,8 @@ t_RPAREN  = r'\)'
 t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 def t_NUMBER(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
+    r'\d+(\.\d+)?'
+    t.value = Decimal(t.value)
     return t
 
 # Ignored characters
@@ -36,7 +36,6 @@ def t_error(t):
     t.lexer.skip(1)
     
 # Build the lexer
-import ply.lex as lex
 lex.lex()
 
 # Parsing rules
@@ -47,7 +46,7 @@ precedence = (
     ('right','UMINUS'),
     )
 
-# dictionary of names
+
 names = { }
 
 def p_statement_assign(t):
@@ -91,7 +90,6 @@ def p_expression_name(t):
 def p_error(t):
     print("Syntax error at '%s'" % t.value)
 
-import ply.yacc as yacc
 yacc.yacc()
 
 while 1:
