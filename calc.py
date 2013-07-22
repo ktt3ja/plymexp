@@ -1,12 +1,15 @@
 import ply.lex as lex
 import ply.yacc as yacc
 from decimal import Decimal
+from decimal_math import sin, cos
 
-tokens = (
-    'NAME','NUMBER',
-    'PLUS','MINUS','TIMES','DIVIDE','RAISE_TO','EQUALS', 'SET_TO',
+functions = ['sqrt','sin','cos']
+
+tokens = [
+    'NAME','NUMBER','FUNCTION',
+    'PLUS','MINUS','TIMES','DIVIDE','RAISE_TO','EQUALS','SET_TO',
     'LPAREN','RPAREN',
-    )
+    ]
 
 # Tokens
 
@@ -19,7 +22,12 @@ t_EQUALS   = r'='
 t_SET_TO   = r'->'
 t_LPAREN   = r'\('
 t_RPAREN   = r'\)'
-t_NAME     = r'[a-zA-Z_][a-zA-Z0-9_]*'
+
+def t_NAME(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    if t.value in functions:
+        t.type = 'FUNCTION'
+    return t
 
 def t_NUMBER(t):
     r'\d+(\.\d+)?'
@@ -88,6 +96,15 @@ def p_expression_uminus(t):
 def p_expression_exponent(t):
     'expression : expression RAISE_TO expression'
     t[0] = t[1] ** t[3]
+
+def p_expression_function(t):
+    'expression : FUNCTION LPAREN expression RPAREN'
+    if t[1] == 'sqrt':
+        t[0] = t[3].sqrt()
+    elif t[1] == 'sin':
+        t[0] = sin(t[3])
+    elif t[1] == 'cos':
+        t[0] = cos(t[3])
 
 def p_expression_group(t):
     'expression : LPAREN expression RPAREN'
