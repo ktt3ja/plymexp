@@ -3,7 +3,7 @@ import ply.yacc as yacc
 from decimal import Decimal
 from decimal_math import sin, cos
 
-functions = ['sqrt','sin','cos']
+functions = ['sqrt','sin','cos','ln','log']
 
 tokens = [
     'NAME','NUMBER','FUNCTION',
@@ -59,7 +59,7 @@ precedence = (
 
 
 names = { }
-reserved_names = ['_last']
+reserved_names = ['e','pi','_last']
 def p_statement_assign(t):
     'statement : NAME EQUALS expression'
     if t[1] in reserved_names:
@@ -105,6 +105,10 @@ def p_expression_function(t):
         t[0] = sin(t[3])
     elif t[1] == 'cos':
         t[0] = cos(t[3])
+    elif t[1] == 'ln':
+        t[0] = t[3].ln()
+    elif t[1] == 'log':
+        t[0] = t[3].log10()
 
 def p_expression_group(t):
     'expression : LPAREN expression RPAREN'
@@ -120,7 +124,7 @@ def p_expression_name(t):
         t[0] = names[t[1]]
     except LookupError:
         print("Undefined name '%s'" % t[1])
-        t[0] = 0
+        t[0] = Decimal(0)
 
 def p_error(t):
     print("Syntax error at '%s'" % t.value)
