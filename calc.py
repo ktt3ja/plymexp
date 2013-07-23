@@ -1,7 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 from decimal import Decimal
-from decimal_math import sin, cos
+from decimal_math import sin, cos, pi, exp
 
 functions = ['sqrt','sin','cos','ln','log']
 
@@ -58,7 +58,7 @@ precedence = (
     )
 
 
-names = { }
+names = {'e': exp(Decimal(1)), 'pi': pi()}
 reserved_names = ['e','pi','_last']
 def p_statement_assign(t):
     'statement : NAME EQUALS expression'
