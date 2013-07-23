@@ -1,6 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 from decimal import Decimal
+import decimal
 from decimal_math import sin, cos, pi, exp
 
 functions = ['sqrt','sin','cos','ln','log']
@@ -25,7 +26,8 @@ t_RPAREN   = r'\)'
 
 def t_NAME(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
-    if t.value in functions:
+    t.value = t.value.lower();
+    if t.value in functions or t.value[:4] == 'log_':
         t.type = 'FUNCTION'
     return t
 
@@ -58,7 +60,7 @@ precedence = (
     )
 
 
-names = {'e': exp(Decimal(1)), 'pi': pi()}
+names = {'e': exp(Decimal(1)), 'pi': pi(), '_last': Decimal(0)}
 reserved_names = ['e','pi','_last']
 def p_statement_assign(t):
     'statement : NAME EQUALS expression'
@@ -109,6 +111,14 @@ def p_expression_function(t):
         t[0] = t[3].ln()
     elif t[1] == 'log':
         t[0] = t[3].log10()
+    elif t[1][:4] == 'log_':
+        try:
+            b = Decimal(t[1][4:])
+            t[0] = t[3].log10() / b.log10()
+        except decimal.InvalidOperation:
+            print "Cannot evaluate %s%s%s%s. " \
+                  "Setting it to 0." % (t[1], t[2], t[3], t[4])
+            t[0] = Decimal(0)
 
 def p_expression_group(t):
     'expression : LPAREN expression RPAREN'
